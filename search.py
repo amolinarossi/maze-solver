@@ -46,27 +46,31 @@ def dfs(maze, agent):
     cost_so_far: Dict[(int,int), float] = {}
     came_from[maze.getStart()] = None
     cost_so_far[maze.getStart()] = 0
-    print('here')
+    total_cost = 0
+
     while not frontier.empty():
-        current = frontier.get()
         
+        current = frontier.get()
+        agent.move(current)
+        total_cost+= cost_so_far[current]
+        print(agent.getPosition())
         if current == maze.getGoal():
             break
         
         for potentialNext in maze.getNeighbors(current[0], current[1]):
             new_cost = cost_so_far[current] + getCost(maze,potentialNext)
-            if potentialNext not in cost_so_far or new_cost < cost_so_far[potentialNext]:
+            if potentialNext not in cost_so_far or new_cost < cost_so_far[current]:
                 next = potentialNext
                 cost_so_far[next] = new_cost
                 priority = new_cost
                 frontier.put(next, priority)
-                came_from[next] = current
-                print(cost_so_far[next])
-    
-    return came_from, cost_so_far
 
-    # TODO: Write your code here
-    # return path, num_states_explored
+                print('-',next)
+                came_from[next] = current
+
+
+
+    return came_from, total_cost
 
 
 
@@ -116,4 +120,12 @@ if __name__ == "__main__":
     searchType = args.search
     thisMaze = Maze(fileName)
     thisAgent = Agent(thisMaze)
-    search(thisMaze, thisAgent, searchType)
+    came_from, total_cost = search(thisMaze, thisAgent, searchType)
+
+    print(fileName)
+    print(searchType)
+    print(thisMaze.getGoal())
+    print('Number of nodes expanded: ', len(set(came_from)))
+    print('Total Cost: ', total_cost)
+    print('Path: ')
+    print('-> '.join(str (key) for key in came_from))

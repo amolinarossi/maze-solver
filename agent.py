@@ -59,4 +59,8 @@ class Agent():
     def getPosition(self):
         return (self.row,self.col)
 
+    def move(self, tuple):
+        self.row = tuple[0]
+        self.col = tuple[1]
+
 
