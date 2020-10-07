@@ -35,16 +35,11 @@ class Maze:
         self.cols = len(lines[0])
         self.mazeRaw = lines
 
-        if (len(self.mazeRaw) != self.rows) or (len(self.mazeRaw[0]) != self.cols):
-            print("Maze dimensions incorrect")
-            raise SystemExit
-            return
-
         for row in range(len(self.mazeRaw)):
             for col in range(len(self.mazeRaw[0])):
                 if self.mazeRaw[row][col] == self.__startChar:
                     self.__start = (row, col)
-                elif self.mazeRaw[row][col] == self.__objectiveChar:
+                elif self.mazeRaw[row][col] == self.__goalChar:
                     self.__goal = (row, col)
 
     # Returns True if the given position is the location of a wall
@@ -68,7 +63,7 @@ class Maze:
 
     # Returns the list of objective positions of the maze
     def getGoal(self):
-        return copy.deepcopy(self.__objective)
+        return copy.deepcopy(self.__goal)
 
     def setGoal(self, goal):
         self.__goal = goal
