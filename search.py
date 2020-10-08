@@ -42,45 +42,57 @@ def search(maze, searchMethod):
 
 
 def dfs(maze):
+    cost_so_far: Dict[Location, float] = {}
+    cost_so_far[maze.getStart()] = 0
     frontier = LifoQueue()
     came_from: Dict[Location, Location] = {}
     path = []
     frontier.put(maze.getStart())
     came_from[maze.getStart()] = None
+    total_cost = 0
     while not frontier.empty():
         current: Location = frontier.get()
         path.append(current)
         if current == maze.getGoal():
+            total_cost = cost_so_far[current]
             print("Reached",current)
             break
         print('Current: ', current)
         for next in maze.getNeighbors(current[0], current[1]):
             print('   ', next)
             if next not in came_from:
+                new_cost = cost_so_far[current] + getCost(current, next)
+                cost_so_far[next] = new_cost
                 frontier.put(next)
                 came_from[next] = current
-    return path, 0
+    return path, total_cost
 
 
 def bfs(maze):
+    cost_so_far: Dict[Location, float] = {}
+    cost_so_far[maze.getStart()] = 0
     frontier = Queue()
     came_from: Dict[Location, Location] = {}
     path = []
     frontier.put(maze.getStart())
     came_from[maze.getStart()] = None
+    total_cost = 0
     while not frontier.empty():
         current: Location = frontier.get()
         path.append(current)
         if current == maze.getGoal():
+            total_cost = cost_so_far[current]
             print("Reached",current)
             break
         print('Current: ', current)
         for next in maze.getNeighbors(current[0],current[1]):
             print('   ', next)
             if next not in came_from:
+                new_cost = cost_so_far[current] + getCost(current, next)
+                cost_so_far[next] = new_cost
                 frontier.put(next)
                 came_from[next] = current
-    return path, 0
+    return path, total_cost
 
 
 def astar(maze):
