@@ -22,15 +22,18 @@ files and classes when code is run, so be careful to not modify anything else.
 import sys
 import argparse
 import time
+#import numpy
 
-from typing import Dict, List, Iterator, Tuple, TypeVar, Optional
 from agent import Agent
 from maze import Maze
 import math
-from queue import PriorityQueue
+from queue import PriorityQueue, Queue
 
 
+from typing import Dict, List, Iterator, Tuple, TypeVar, Optional
+T = TypeVar('T')
 
+Location = TypeVar('Location')
 
 def search(maze, agent, searchMethod):    
     return {
@@ -59,7 +62,7 @@ def dfs(maze, agent):
         
         for potentialNext in maze.getNeighbors(current[0], current[1]):
             new_cost = cost_so_far[current] + getCost(maze,potentialNext)
-            if potentialNext not in cost_so_far or new_cost < cost_so_far[current]:
+            if potentialNext not in cost_so_far or new_cost < cost_so_far[potentialNext]:
                 next = potentialNext
                 cost_so_far[next] = new_cost
                 priority = new_cost
@@ -69,17 +72,39 @@ def dfs(maze, agent):
                 came_from[next] = current
 
 
+    
+    # while True:
+    #     if agent.getPosition() == maze.getGoal():
+    #         break
+    #     neighborCosts = []
+    #     for neighbor in maze.getNeighbors(agent.getPosition()):
+    #         neighborCosts.append(getCost(maze,neighbor))
+        
+    #     min(neighborCosts)
 
     return came_from, total_cost
 
 
 
 def bfs(maze, agent):
-
-    
-    # TODO: Write your code here
-    # return path, num_states_explored
-    return [], 0
+    frontier = Queue()
+    frontier.put(maze.getStart())
+    came_from: Dict[Location, Location] = {}
+    came_from[maze.getStart()] = None
+    total_cost = 0
+    while not frontier.empty():
+        current: Location = frontier.get()
+        
+        if current == maze.getGoal():
+            print(current)
+            break
+        print('Current: ', current)
+        for next in maze.getNeighbors(current[0],current[1]):
+            print('   ', next)
+            if next not in came_from:
+                frontier.put(next)
+                came_from[next] = current
+    return came_from, total_cost
 
 
 def astar(maze, agent):
