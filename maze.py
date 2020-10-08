@@ -11,6 +11,7 @@
 This file contains the Maze class, which reads in a maze file and creates
 a representation of the maze that is exposed through a simple interface.
 """
+# Modified by Angelo Molina-Rossi and Rahul Mittal
 
 import re
 import copy
