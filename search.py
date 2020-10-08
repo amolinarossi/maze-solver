@@ -27,7 +27,7 @@ import time
 from agent import Agent
 from maze import Maze
 import math
-from queue import PriorityQueue, Queue
+from queue import PriorityQueue, Queue,LifoQueue
 
 
 from typing import Dict, List, Iterator, Tuple, TypeVar, Optional
@@ -35,68 +35,47 @@ T = TypeVar('T')
 
 Location = TypeVar('Location')
 
+
 def search(maze, agent, searchMethod):    
     return {
         "depth": dfs,
         "breadth": bfs,
         "astar": astar
     }.get(searchMethod)(maze,agent)
-   
+
+
 def dfs(maze, agent):
-    frontier = PriorityQueue()
-    frontier.put(maze.getStart(),0)
-    came_from: Dict[(int,int), Optional[(int,int)]] = {}
-    cost_so_far: Dict[(int,int), float] = {}
+    frontier = LifoQueue()
+    came_from: Dict[Location, Location] = {}
+    path = []
+    frontier.put(maze.getStart())
     came_from[maze.getStart()] = None
-    cost_so_far[maze.getStart()] = 0
-    total_cost = 0
-
     while not frontier.empty():
-        
-        current = frontier.get()
-        agent.move(current)
-        total_cost+= cost_so_far[current]
-        print(agent.getPosition())
+        current: Location = frontier.get()
+        path.append(current)
         if current == maze.getGoal():
+            print("Reached",current)
             break
-        
-        for potentialNext in maze.getNeighbors(current[0], current[1]):
-            new_cost = cost_so_far[current] + getCost(maze,potentialNext)
-            if potentialNext not in cost_so_far or new_cost < cost_so_far[potentialNext]:
-                next = potentialNext
-                cost_so_far[next] = new_cost
-                priority = new_cost
-                frontier.put(next, priority)
-
-                print('-',next)
+        print('Current: ', current)
+        for next in maze.getNeighbors(current[0], current[1]):
+            print('   ', next)
+            if next not in came_from:
+                frontier.put(next)
                 came_from[next] = current
-
-
-    
-    # while True:
-    #     if agent.getPosition() == maze.getGoal():
-    #         break
-    #     neighborCosts = []
-    #     for neighbor in maze.getNeighbors(agent.getPosition()):
-    #         neighborCosts.append(getCost(maze,neighbor))
-        
-    #     min(neighborCosts)
-
-    return came_from, total_cost
-
+    return path, 0
 
 
 def bfs(maze, agent):
     frontier = Queue()
-    frontier.put(maze.getStart())
     came_from: Dict[Location, Location] = {}
+    path = []
+    frontier.put(maze.getStart())
     came_from[maze.getStart()] = None
-    total_cost = 0
     while not frontier.empty():
         current: Location = frontier.get()
-        
+        path.append(current)
         if current == maze.getGoal():
-            print(current)
+            print("Reached",current)
             break
         print('Current: ', current)
         for next in maze.getNeighbors(current[0],current[1]):
@@ -104,7 +83,7 @@ def bfs(maze, agent):
             if next not in came_from:
                 frontier.put(next)
                 came_from[next] = current
-    return came_from, total_cost
+    return path, 0
 
 
 def astar(maze, agent):
@@ -141,16 +120,16 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    fileName = args.filename
-    searchType = args.search
-    thisMaze = Maze(fileName)
-    thisAgent = Agent(thisMaze)
-    came_from, total_cost = search(thisMaze, thisAgent, searchType)
+    file_name = args.filename
+    method = args.search
+    maze = Maze(file_name)
+    agent = Agent(maze)
+    path, total_cost = search(maze, agent, method)
 
-    print(fileName)
-    print(searchType)
-    print(thisMaze.getGoal())
-    print('Number of nodes expanded: ', len(set(came_from)))
+    print(file_name)
+    print(method)
+    print(maze.getGoal())
+    print('Number of nodes expanded: ', len(set(path)))
     print('Total Cost: ', total_cost)
     print('Path: ')
-    print('-> '.join(str (key) for key in came_from))
+    print('-> '.join(str(node) for node in path))
